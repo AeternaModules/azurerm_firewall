@@ -52,7 +52,7 @@ EOT
       subnet_id            = string
     }))
     virtual_hub = optional(object({
-      public_ip_count = optional(number, 1)
+      public_ip_count = optional(number) # Default: 1
       virtual_hub_id  = string
     }))
   }))

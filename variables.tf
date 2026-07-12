@@ -41,11 +41,11 @@ EOT
     tags                = optional(map(string))
     threat_intel_mode   = optional(string)
     zones               = optional(set(string))
-    ip_configuration = optional(object({
+    ip_configuration = optional(list(object({
       name                 = string
       public_ip_address_id = optional(string)
       subnet_id            = optional(string)
-    }))
+    })))
     management_ip_configuration = optional(object({
       name                 = string
       public_ip_address_id = string
@@ -56,38 +56,6 @@ EOT
       virtual_hub_id  = string
     }))
   }))
-  validation {
-    condition = alltrue([
-      for k, v in var.firewalls : (
-        v.ip_configuration == null || (length(v.ip_configuration.name) > 0)
-      )
-    ])
-    error_message = "must not be empty"
-  }
-  validation {
-    condition = alltrue([
-      for k, v in var.firewalls : (
-        v.management_ip_configuration == null || (length(v.management_ip_configuration.name) > 0)
-      )
-    ])
-    error_message = "must not be empty"
-  }
-  validation {
-    condition = alltrue([
-      for k, v in var.firewalls : (
-        v.virtual_hub == null || (v.virtual_hub.public_ip_count == null || (v.virtual_hub.public_ip_count >= 1))
-      )
-    ])
-    error_message = "must be at least 1"
-  }
-  validation {
-    condition = alltrue([
-      for k, v in var.firewalls : (
-        v.zones == null || (length(v.zones) > 0)
-      )
-    ])
-    error_message = "must not be empty"
-  }
   # --- Unconfirmed validation candidates, derived from azurerm_firewall's provider source ---
   # Not auto-enabled: either a bespoke provider validator we can't safely translate,
   # or a path that crosses a list-typed block (needs its own for_each wrapping).
@@ -118,6 +86,9 @@ EOT
   #   source:    [from firewallpolicies.ValidateFirewallPolicyID] !ok
   # path: firewall_policy_id
   #   source:    [from firewallpolicies.ValidateFirewallPolicyID] err != nil
+  # path: ip_configuration.name
+  #   condition: length(value) > 0
+  #   message:   must not be empty
   # path: ip_configuration.subnet_id
   #   source:    [from validate.FirewallSubnetName] err != nil
   # path: ip_configuration.subnet_id
@@ -126,6 +97,9 @@ EOT
   #   source:    [from commonids.ValidatePublicIPAddressID] !ok
   # path: ip_configuration.public_ip_address_id
   #   source:    [from commonids.ValidatePublicIPAddressID] err != nil
+  # path: management_ip_configuration.name
+  #   condition: length(value) > 0
+  #   message:   must not be empty
   # path: management_ip_configuration.subnet_id
   #   source:    [from validate.FirewallManagementSubnetName] err != nil
   # path: management_ip_configuration.subnet_id
@@ -144,6 +118,12 @@ EOT
   #   source:    [from virtualwans.ValidateVirtualHubID] !ok
   # path: virtual_hub.virtual_hub_id
   #   source:    [from virtualwans.ValidateVirtualHubID] err != nil
+  # path: virtual_hub.public_ip_count
+  #   condition: value >= 1
+  #   message:   must be at least 1
+  # path: zones[*]
+  #   condition: length(value) > 0
+  #   message:   must not be empty
   # path: tags
   #   condition: length(value) <= 50
   #   message:   [from tags.Validate: invalid when len(value) > 50]

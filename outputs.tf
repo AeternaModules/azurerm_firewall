@@ -1,3 +1,7 @@
+output "firewalls_id" {
+  description = "Map of id values across all firewalls, keyed the same as var.firewalls"
+  value       = { for k, v in azurerm_firewall.firewalls : k => v.id }
+}
 output "firewalls_dns_proxy_enabled" {
   description = "Map of dns_proxy_enabled values across all firewalls, keyed the same as var.firewalls"
   value       = { for k, v in azurerm_firewall.firewalls : k => v.dns_proxy_enabled }

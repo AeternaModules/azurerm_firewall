@@ -24,7 +24,7 @@ output "firewalls_location" {
 }
 output "firewalls_management_ip_configuration" {
   description = "Map of management_ip_configuration values across all firewalls, keyed the same as var.firewalls"
-  value       = { for k, v in azurerm_firewall.firewalls : k => v.management_ip_configuration if v.management_ip_configuration != null && length(v.management_ip_configuration) > 0 }
+  value       = { for k, v in azurerm_firewall.firewalls : k => one(v.management_ip_configuration) if v.management_ip_configuration != null && length(v.management_ip_configuration) > 0 }
 }
 output "firewalls_name" {
   description = "Map of name values across all firewalls, keyed the same as var.firewalls"
@@ -56,7 +56,7 @@ output "firewalls_threat_intel_mode" {
 }
 output "firewalls_virtual_hub" {
   description = "Map of virtual_hub values across all firewalls, keyed the same as var.firewalls"
-  value       = { for k, v in azurerm_firewall.firewalls : k => v.virtual_hub if v.virtual_hub != null && length(v.virtual_hub) > 0 }
+  value       = { for k, v in azurerm_firewall.firewalls : k => one(v.virtual_hub) if v.virtual_hub != null && length(v.virtual_hub) > 0 }
 }
 output "firewalls_zones" {
   description = "Map of zones values across all firewalls, keyed the same as var.firewalls"
